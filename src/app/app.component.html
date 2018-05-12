@@ -1,0 +1,286 @@
+<!doctype html>
+    <html lang="en">
+    <head><title>Document</title>
+
+    </head>
+    <body>
+    <!--Header-->
+    <div class="header-settings">
+      <h1>Find your work</h1>
+
+      <p>Easiest way to get employed</p>
+    </div>
+
+    <div class="container bg-white" >
+      <!--LoginWindow-->
+      <div  *ngIf="!getAuthorized()">
+        <div class="row">
+              <!--LoginForm-->
+              <div class="col-md-6">
+                <login-comp [(isAdmin)]="isAdmin" [(currentUser)]="currentUser"  [(isAuthorized)]="isAuthorized" [(showVacancies)]="showVacancies"  ></login-comp>
+                 </div>
+              <!--Credits-->
+              <div class="col-md-6">
+                <div class="vline">
+                  <p>Course work - 5 variant</p>
+                  <br/>
+                  <p>Popovych Sergiy</p>
+                  <br/>
+                  <p>Povshednyi Oleg</p>
+                  <br/>
+                  <p>Arseniy Pelekh</p>
+                  <br/>
+                  <p>@Nau 2018</p>
+                </div>
+
+              </div>
+         </div>
+       </div>
+
+
+      <div class="row">
+
+        <!--MainContentWindow-->
+        <div class="col-md-8 bg-white" *ngIf="getAuthorized()">
+          <!--AlertWindows-->
+          <div>
+            <div class="alert alert-success"   *ngIf="getSuccessWindow()">
+
+              <strong>Success!</strong>{{" " + getInfoMessage()}}
+            </div>
+            <div class="alert alert-danger"  *ngIf="getDangerWindow()">
+
+              <strong>Error!</strong>{{" " + getInfoMessage()}}
+            </div>
+          </div>
+          <!--SearchPreferences-->
+          <div class="input-settings" *ngIf="getAuthorized() && getSearchStatus()">
+
+
+              <button type="button" class="btn btn-outline-info" (click)="onRefresh($event)"> {{ getSearchPreferences()+ "    "}}&times;</button>
+
+
+          </div>
+          <!--PersonalDataWindow-->
+          <div *ngIf="getWatchHimself()">
+            <!--Vacancies-->
+            <input type="button" class="btn btn-link" *ngIf="!getTypeOfUser()" value="Edit" (click)="onSwitchEditForm()">
+              <div  *ngFor="let vacansy of getVacancies(), let i = index">
+                      <div class="vacancy-settings">
+                        <div class="row">
+                          <div class="col-md-8 bg-white"><h4>{{vacansy.getPurpose()}}</h4> {{vacansy.getRemote()}}</div>
+                            <div class="col-md-4 bg-white"><label>{{vacansy.getSalary() + "   "}}$</label>  </div>
+
+                        </div>
+
+                        {{vacansy.getDescription()}}
+
+                      </div>
+                  <div *ngIf="vacansy.getSummaries().length != 0" class="vacancy-settings">
+                    <H5><label>Offered summaries:</label></H5>
+                      <div *ngFor ="let summary of vacansy.getSummaries()" class="input-settings">
+                        {{summary.getName() + " " + summary.getSalary()}}$
+                      </div>
+                      </div>
+                      <!--EditForm-->
+
+                      <form *ngIf="getEditingStatus()">
+                        <div class="col-md-8 bg-white">
+                      <input type="hidden" minlength="6" class="form-control input-settings" #EditVacansyTitle placeholder="Title" value="{{vacansy.getPurpose()}}">
+                      <input type="number" min = "0" class="form-control input-settings" #EditVacansySalary placeholder="Salary" value="{{vacansy.getSalary()}}">
+                      <input type="text" minlength="6"  class="form-control input-settings" #EditVacansyDescr placeholder="Description" value="{{vacansy.getDescription()}}">
+                      <div class="checkbox ">
+                        <label><input type="checkbox" #EditVacansyIfRemote  [checked]="vacansy.getRemoteBool()" > Remote work</label>
+                      </div>
+
+                      <input type="button" class="form-control btn btn-success input-settings" value="Save" (click)="onUpdVacancy(i, EditVacansyTitle.value, EditVacansySalary.value, EditVacansyDescr.value, EditVacansyIfRemote.checked)" >
+                        </div>
+                      </form>
+                      <hr>
+                    </div>
+            <!--Summaries-->
+               <div  *ngFor="let summary of getSummaries()">
+                    <div class="vacancy-settings">
+                      <div class="row">
+                        <div class="col-md-8 bg-white">
+                          <h4>
+                          {{summary.getName()}} </h4> {{ " " + summary.getPosition() + "       "}}
+                          <input type="button" class="btn btn-link" value="Edit" (click)="onSwitchEditForm()">
+                        </div>
+                        <div class="col-md-4 bg-white">
+                          {{summary.getSalary()}}$
+                        </div>
+                      </div>
+
+                      {{summary.getInfo()}}
+
+                    </div>
+                 <!--EditForm-->
+                 <form *ngIf="getEditingStatus()">
+                   <div class="col-md-8 bg-white">
+                    <input type="text" minlength="6" class="form-control input-settings" #EditName placeholder="Your name" value="{{summary.getName()}}">
+                    <input type="text"  minlength="6" class="form-control input-settings" #EditPosition placeholder="Wanted position" value = "{{summary.getPosition()}}">
+                    <input type="number" min="0" class="form-control input-settings" #EditSalary placeholder="Wanted salary" value="{{summary.getSalary()}}">
+                    <input type="text" minlength="6" class="form-control input-settings" #EditPersDesc placeholder="Your skills and information" value="{{summary.getInfo()}}">
+
+                    <input type="button" class="form-control btn btn-success input-settings" value="Save" (click)="onUpdSummary(EditName.value, EditPosition.value, EditPersDesc.value, EditSalary.value)" >
+                   </div>
+                 </form>
+                    <hr>
+                  </div>
+
+          </div>
+          <!--MainContent-->
+           <div class="row">
+             <!--Vacancies-->
+           <div *ngIf="getTypeOfUser()">
+               <div  *ngFor="let vacansy of getVacancies()">
+                 <div class="vacancy-settings">
+                   <div class="row">
+                     <div class="col-md-8 bg-white"><h4>{{vacansy.getPurpose()}}</h4>{{vacansy.getRemote()}}</div>
+                     <div class="col-md-4 bg-white"><label>{{vacansy.getSalary() + "   "}}$</label>  <button *ngIf = "!getAdminStatus()" type="button" class="btn btn-link" (click)="onApply(vacansy)">Apply</button> </div>
+                   </div>
+
+                   {{vacansy.getDescription()}}
+
+                 </div>
+                 <div *ngIf="vacansy.getSummaries().length != 0" class="vacancy-settings">
+                   <H5><label>Offered summaries:</label></H5>
+                 <div *ngFor ="let summary of vacansy.getSummaries()" class="input-settings">
+                      {{summary.getName() + " " + summary.getSalary()}}$
+                 </div>
+                 </div>
+                 <hr>
+               </div>
+             </div>
+             <!--Summaries-->
+           <div *ngIf="!getTypeOfUser()">
+             <div  *ngFor="let summary of getSummaries()">
+               <div class="vacancy-settings">
+                 <div class="row">
+                   <div class="col-md-8 bg-white"> <h4>
+                     {{summary.getName()}} </h4> {{ " " + summary.getPosition()}} </div>
+                   <div class="col-md-4 bg-white">{{summary.getSalary()}}$</div>
+                 </div>
+
+                 {{summary.getInfo()}}
+
+               </div>
+
+               <hr>
+             </div>
+           </div>
+           </div>
+      </div>
+        <!--AdminBlock-->
+
+        <!--FilterContentWindow-->
+      <div class="col-md-4 filter-settings  container-extra sccontainer" *ngIf="getAuthorized()">
+        <div *ngIf="getAdminStatus()">
+          <button type="button" class="btn btn-link" (click)="switchAdmin()">Switch vacancies/summaries</button>
+        </div>
+        <!--CompanyFilterBlock-->
+        <form *ngIf="!getTypeOfUser()" class="col-md-12">
+          <input type="text" class="form-control input-settings" #LookPosition placeholder="Looking for">
+          <input type="number" class="form-control input-settings" #LookSalary placeholder="Maximum salary">
+          <label class="input-settings"  >Sort by:</label>
+            <select  class="form-control input-settings" #SortTypeSummary>
+
+            <option value="Name" class="form-control input-settings">Name</option>
+            <option value="Salary" class="form-control input-settings ">Salary</option>
+
+          </select>
+          <button type="button" class="btn btn-link opad" (click)="onSuggested()">Find suggestions?</button>
+          <input type="button" class="form-control btn btn-primary input-settings"  value="Search" (click)="onFilterSummaries(LookPosition.value, LookSalary.value, SortTypeSummary.value)">
+        </form>
+        <!--UserFilterBlock-->
+        <form *ngIf="getTypeOfUser()">
+            <div class="form-group">
+              <div class="col-md-12">
+              <input type="text" class="form-control input-settings" #WorkName placeholder="Carwasher">
+
+              </div>
+              <div class=" col-md-12 ">
+                <div class="row">
+                <div class="col-md-2 zerop">
+
+                  <label class="input-settings"  >By:</label>
+
+                </div>
+                <div class="col-md-10 zerop">
+
+
+              <select  class="form-control input-settings" #SortType>
+
+                <option value="Title" class="form-control input-settings">Title</option>
+                <option value="Salary" class="form-control input-settings ">Salary</option>
+
+              </select>
+
+
+                </div>
+                </div>
+
+              </div>
+
+                <label class="paddtwelve"><input type="checkbox"  #IfRemote> Remote work</label>
+
+
+
+
+              <button type="button" class="btn btn-link opad" (click)="onSuggested()">Find suggestions?</button>
+
+
+
+
+            </div>
+            <div class="col-md-12">
+            <input type="button" class="form-control btn btn-primary input-settings" value="Search" (click)="onFilterVacancies( WorkName.value.toString(), SortType.value.toString(), IfRemote.checked)">
+            </div>
+
+          </form>
+
+        <hr>
+        <button type="button" class="btn btn-link opad" (click)="RefreshPage()">Logout</button>
+        <div  *ngIf="!getAdminStatus()">
+        <!--AddItemBlock-->
+
+
+            <button type="button" class="btn btn-link" (click)="onMyInfo()">My vacancy/summary</button>
+
+
+
+
+
+        <div class="col-md-12">
+        <input type="button" class="form-control btn btn-outline-secondary input-settings" value="Add vacancy/summary" (click)="onSwitchOpenForm()">
+          <!--AddSummaryBlock-->
+          <form *ngIf="getAddFormUserStatus()">
+          <input type="text" class="form-control input-settings" #AddName placeholder="Your name">
+          <input type="text" class="form-control input-settings" #AddPosition placeholder="Wanted position">
+          <input type="number" class="form-control input-settings" min="50" #AddSalary placeholder="Wanted salary">
+          <input type="text" class="form-control input-settings" #AddPersDesc placeholder="Your skills and information">
+
+          <input type="button" class="form-control btn btn-success input-settings" value="Add" (click)="AddSummary(AddName.value, AddPosition.value,  AddPersDesc.value, AddSalary.value)" >
+        </form>
+          <!--AddVacansyBlock-->
+          <form *ngIf="getAddFormHrStatus()">
+            <input type="text" class="form-control input-settings" #VacansyTitle placeholder="Title">
+            <input type="number" class="form-control input-settings" min="50" #VacansySalary placeholder="Salary">
+            <input type="text" class="form-control input-settings" #VacansyDescr placeholder="Description">
+            <div class="checkbox ">
+              <label><input type="checkbox" #VacansyIfRemote> Remote work</label>
+            </div>
+            <input type="button" class="form-control btn btn-success input-settings" value="Add" (click)="AddVacancy(VacansyTitle.value, VacansySalary.value, VacansyDescr.value, VacansyIfRemote.checked)" >
+          </form>
+        </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    </body>
+
+    </html>
+
+
